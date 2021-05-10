@@ -113,7 +113,7 @@ jobs:
         rm -r ~/main-build
         cd main
         bash everything.sh
-        agda Everything.agda
+        agda -i . --safe Everything.agda
         rm Everything.agda
         cd ..
         cp -f -R main/ ~/main-build/
