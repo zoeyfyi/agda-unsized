@@ -4,9 +4,9 @@
 echo "" > Everything.agda
 
 # Write imports
-for file in $(find $base_work_dir -name '*.agda')
+for file in $(find $base_work_dir./src -name '*.agda')
 do
-  import="${file:2:-5}"
+  import="${file:6:-5}"
   import="${import//[\/]/\.}"
   if [ "$import" = "Everything" ]; then
     continue
