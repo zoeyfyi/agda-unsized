@@ -1,0 +1,16 @@
+*.agda.el
+*.agdai
+*.hi
+*.lagda.el
+*.o
+*.tix
+*.vim
+*~
+.*.swp
+./_build/*
+.DS_Store
+dist
+dist-newstyle
+Haskell
+html
+MAlonzo
