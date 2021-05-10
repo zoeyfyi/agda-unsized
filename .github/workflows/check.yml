@@ -108,6 +108,10 @@ jobs:
     - name: Compile main library
       if: steps.cache-main.outputs.cache-hit != 'true'
       run: |
+        mkdir -p ~/main-build/_build
+        cp -f -R ~/main-build/_build $GITHUB_WORKSPACE/main/_build
+        rm -r ~/main-build
+        cd main
         bash everything.sh
         agda Everything.agda
         rm Everything.agda
