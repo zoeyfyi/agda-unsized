@@ -24,6 +24,12 @@ jobs:
 
     steps:
 
+    - name: Get Date
+      id: get-date
+      run: |
+        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+      shell: bash
+
     # Install Agda
     - uses: actions/cache@v2
       name: Cache cabal packages
@@ -34,7 +40,7 @@ jobs:
           ~/.cabal/store
           ~/.cabal/bin
           dist-newstyle
-        key: ${{ runner.os }}-${{ env.ghc-ver }}-${{ env.cabal-ver }}-${{ matrix.agda-ref }}
+        key: ${{ runner.os }}-${{ env.ghc-ver }}-${{ env.cabal-ver }}-${{ matrix.agda-ref }}${{ matrix.agda-ref == 'master' && steps.get-date.outputs.date || '' }}
 
     - name: Install cabal
       if: steps.cache-cabal.outputs.cache-hit != 'true'
