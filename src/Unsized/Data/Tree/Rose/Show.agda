@@ -38,18 +38,6 @@ display t = DList.toList (go (([] , t) ∷ []))
     go' : List (List Bool) → List (Rose (List String)) → DList String
     go'' : List Bool → Rose (List String) → DList String
 
-    -- go []                       = DList.[]
-    -- go ((bs , node a ts₁) ∷ ts) =
-    --   let bs′ = List.reverse bs in
-    --   DList.fromList (List.zipWith (flip padding bs′) (nodePrefixes a) a)
-    --   DList.++ go' (childrenPrefixes ts₁ List.++ bs) ts₁ --go (List.zip (List.map (_∷ bs) (childrenPrefixes ts₁)) ts₁)
-    --   DList.++ go ts
-
-    -- go' bs [] = DList.[]
-    -- go' bs (t ∷ ts) = go [ (bs , t) ] DList.++ go' bs ts
-
-    -- go'' = {!   !}
-
     go []              = DList.[]
     go ((bs , t) ∷ ts) = go'' bs t DList.++ go ts
 
@@ -66,17 +54,3 @@ show toString = display ∘′ map toString
 
 showSimple : (A → String) → Rose A → List String
 showSimple toString = show ([_] ∘′ toString)
-
-tree : Rose (List String)
-tree = node [ "one" ]
-      ( node [ "two" ] []
-      ∷ node ("three" ∷ "and" ∷ "four" ∷ [])
-        ( node [ "five" ] []
-        ∷ node [ "six" ] (node [ "seven" ] [] ∷ [])
-        ∷ node [ "eight" ] []
-        ∷ [])
-      ∷ node [ "nine" ]
-        ( node [ "ten" ] []
-        ∷ node [ "eleven" ] [] ∷ [])
-        ∷ [])
-
