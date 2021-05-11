@@ -68,3 +68,9 @@ module _ {P : Pred A ℓ} (P? : Decidable P) where
   
   filterChildren : Rose A → Rose A
   filterChildren (node root₁ children₁) = node root₁ (filter' children₁)
+
+flatten : Rose A → List A
+flatten' : List (Rose A) → List A
+flatten' [] = []
+flatten' (t ∷ ts) = (flatten t) List.++ (flatten' ts)
+flatten (node root₁ children₁) = root₁ ∷ flatten' children₁
