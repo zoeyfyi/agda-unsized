@@ -12,7 +12,7 @@ jobs:
       ghc-ver: "8.10.2"
       cabal-ver: "3.4.0.0"
 
-    continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: ${{ matrix.experimental == true }}
     strategy:
       fail-fast: false
       matrix:
