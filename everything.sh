@@ -18,5 +18,5 @@ done
 # Alphabetical sort
 sort Everything.agda
 
-echo "{-# OPTIONS --safe --without-K #-}
+echo "{-# OPTIONS --safe --without-K --guardedness #-}
 $(cat Everything.agda)" > Everything.agda
