@@ -12,17 +12,12 @@ jobs:
       ghc-ver: "8.10.2"
       cabal-ver: "3.4.0.0"
 
-    continue-on-error: ${{ matrix.experimental == true }}
+    continue-on-error: ${{ matrix.std-ref == 'master' || matrix.agda-ref == 'master' }}
     strategy:
       fail-fast: false
       matrix:
         std-ref: ["v1.6", "master"]
         agda-ref: ["v2.6.1.3", "master"]
-        include:
-          - std-ref: master
-            experimental: true
-          - agda-ref: master
-            experimental: true
 
     steps:
 
