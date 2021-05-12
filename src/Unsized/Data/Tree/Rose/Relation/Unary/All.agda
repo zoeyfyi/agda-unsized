@@ -35,6 +35,12 @@ data All {A : Set ℓ₁} (P : Pred A ℓ₂) : Pred (Rose A) (ℓ₁ ⊔ ℓ₂
 ------------------------------------------------------------------------
 -- Operations on All
 
+root : ∀ {r cs} → All P (node r cs) → P r
+root (node p _) = p
+
+children : All P t → List.All (All P) (Rose.children t)
+children (node _ pcs) = pcs
+
 map : P ⊆ Q → All P t → All Q t
 map' : ∀ {ts : List (Rose A)} → P ⊆ Q → List.All (All P) ts → List.All (All Q) ts
 map g (node x x₁) = node (g x) (map' g x₁)
@@ -54,6 +60,9 @@ module _(S : Setoid ℓ₁ ℓ₂) {P : Pred (Setoid.Carrier S) ℓ₃} where
   tabulateₛ' {ts = []} hyp = List.[]
   tabulateₛ' {ts = t ∷ ts} hyp = 
     tabulateₛ (hyp (AnyList.here refl)) List.∷ tabulateₛ' (λ x x₁ → hyp (AnyList.there x) x₁)
+
+tabulate : (∀ {x} → x ∈ t → P x) → All P t
+tabulate = tabulateₛ (P.setoid _)
 
 ------------------------------------------------------------------------
 -- Generalised lookup based on a proof of Any
