@@ -16,8 +16,9 @@ import Data.List.Relation.Unary.All as List
 import Data.List.Relation.Unary.Any as AnyList
 open import Data.Product as Prod using (∃; _,_)
 open import Unsized.Data.Tree.Rose.Relation.Unary.Any as Any using (Any)
-open import Relation.Binary.PropositionalEquality using (refl; _≡_)
+open import Relation.Binary.PropositionalEquality as P using (refl; _≡_)
 open import Unsized.Data.Tree.Rose.Relation.Unary.Any using (here; there)
+open import Function.Base
 
 private
   variable
@@ -83,3 +84,18 @@ module _ (S : Setoid ℓ₁ ℓ₂) {P : Pred (Setoid.Carrier S) ℓ₃} where
 
   lookupₛ : P Respects _≈_ → All P t → (∀ {x} → x ∈ₛ t → P x)
   lookupₛ resp pxs = lookupWith ((λ py x=y → resp (sym₁ x=y) py)) pxs
+
+------------------------------------------------------------------------
+-- Properties of predicates preserved by All
+
+all? : Decidable P → Decidable (All P)
+all?' : Decidable P → Decidable (List.All (All P))
+all? p (node root' children') with p root' | all?' p children'
+... | yes pr | yes pcs = yes (node pr pcs)
+... | no ¬pr | _       = no (¬pr ∘ root)
+... | yes _  | no ¬pcs = no (¬pcs ∘ children)
+all?' p [] = yes List.[]
+all?' p (c ∷ cs) with all? p c | all?' p cs
+... | yes pc | yes pcs = yes (pc List.∷ pcs)
+... | no ¬pc | _ = no (λ { (px List.∷ x) → ¬pc px })
+... | yes _ | no ¬pcs = no (λ { (px List.∷ x) → ¬pcs x })
