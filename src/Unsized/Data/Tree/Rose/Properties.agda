@@ -33,6 +33,16 @@ node-injectiveₗ refl = refl
 node-injectiveᵣ : node r₁ cs₁ ≡ node r₂ cs₂ → cs₁ ≡ cs₂
 node-injectiveᵣ refl = refl
 
+node-dec : Dec (r₁ ≡ r₂) → Dec (cs₁ ≡ cs₂) → Dec (node r₁ cs₁ ≡ node r₂ cs₂)
+node-dec r₁≟r₂ cs₁≟cs₂ = Decidable.map′ (uncurry (cong₂ node)) node-injective (r₁≟r₂ ×-dec cs₁≟cs₂)
+
+≡-dec : DecidableEquality A → DecidableEquality (Rose A)
+≡-dec' : DecidableEquality A → DecidableEquality (List (Rose A))
+≡-dec _≟_ (node root₁ children₁) (node root₂ children₂) = node-dec (root₁ ≟ root₂) (≡-dec' _≟_ children₁ children₂)
+≡-dec' _≟_ [] [] = yes refl
+≡-dec' _≟_ [] (_ ∷ _) = no (λ ())
+≡-dec' _≟_ (_ ∷ _) [] = no (λ ())
+≡-dec' _≟_ (c₁ ∷ cs₁) (c₂ ∷ cs₂) = List.∷-dec (≡-dec _≟_ c₁ c₂) (≡-dec' _≟_ cs₁ cs₂)
     
 ------------------------------------------------------------------------
 -- map properties
