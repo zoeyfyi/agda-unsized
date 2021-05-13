@@ -7,7 +7,7 @@ open import Relation.Nullary as Dec
 open import Relation.Binary using (Setoid; _Respects_)
 open import Relation.Unary using (Pred; _⊆_; Decidable; Satisfiable; _∩_; IUniversal; _⇒_)
 import Relation.Nullary.Decidable.Core as Dec
-open import Unsized.Data.Tree.Rose using (Rose; node)
+open import Unsized.Data.Tree.Rose using (Rose; Forest; node)
 open import Data.List using (List; _∷_; [])
 open import Data.List.Membership.Propositional renaming (_∈_ to _∈ₗ_)
 import Unsized.Data.Tree.Rose.Membership.Setoid as SetoidMembership
@@ -43,7 +43,7 @@ children : All P t → List.All (All P) (Rose.children t)
 children (node _ pcs) = pcs
 
 map : P ⊆ Q → All P t → All Q t
-map' : ∀ {ts : List (Rose A)} → P ⊆ Q → List.All (All P) ts → List.All (All Q) ts
+map' : ∀ {ts : Forest A} → P ⊆ Q → List.All (All P) ts → List.All (All Q) ts
 map g (node x x₁) = node (g x) (map' g x₁)
 map' g List.[] = List.[]
 map' g (px List.∷ ts) = map g px List.∷ map' g ts
@@ -53,7 +53,7 @@ module _(S : Setoid ℓ₁ ℓ₂) {P : Pred (Setoid.Carrier S) ℓ₃} where
   open SetoidMembership S renaming (_∈_ to _∈ₛ_)
 
   tabulateₛ : (∀ {x} → x ∈ₛ t → P x) → All P t
-  tabulateₛ' : ∀ {ts : List (Rose C)} → 
+  tabulateₛ' : ∀ {ts : Forest C} → 
                (∀ {x t} → t ∈ₗ ts → x ∈ₛ t → P x) → 
                List.All (All P) ts
   tabulateₛ {node root children} hyp = 

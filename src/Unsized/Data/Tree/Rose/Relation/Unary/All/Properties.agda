@@ -37,7 +37,7 @@ private
     Q : Pred A ℓ₂
     R : Pred A ℓ₃
     t : Rose A
-    cs : List (Rose A)
+    cs : Forest A
 
 ------------------------------------------------------------------------
 -- Lemmas relating Any, All and negation.
@@ -46,7 +46,7 @@ All⇒Any : ∀ {t} → All P t → Any P t
 All⇒Any (node p _) = here p
 
 ¬Any⇒All¬ : ∀ (t : Rose A) → ¬ Any P t → All (¬_ ∘ P) t
-¬Any⇒All¬' : ∀ (cs : List (Rose A)) → (∀ {t} → t ∈ₗ cs → ¬ Any P t) → List.All (All (¬_ ∘ P)) cs
+¬Any⇒All¬' : ∀ (cs : Forest A) → (∀ {t} → t ∈ₗ cs → ¬ Any P t) → List.All (All (¬_ ∘ P)) cs
 ¬Any⇒All¬ (node root children) ¬p = node (λ z → ¬p (here z)) (¬Any⇒All¬' children λ x → ¬p ∘ there x)
 ¬Any⇒All¬' [] ¬p = List.[]
 ¬Any⇒All¬' (c ∷ cs) ¬p = ¬Any⇒All¬ c (¬p (AnyList.here refl)) List.∷ ¬Any⇒All¬' cs (λ z → ¬p (AnyList.there z)) 

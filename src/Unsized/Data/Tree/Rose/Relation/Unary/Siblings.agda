@@ -7,7 +7,7 @@ open import Relation.Nullary as Dec
 open import Relation.Unary using (Pred)
 open import Relation.Binary using (Rel; _⇒_)
 import Relation.Nullary.Decidable.Core as Dec
-open import Unsized.Data.Tree.Rose using (Rose; node; root)
+open import Unsized.Data.Tree.Rose using (Rose; Forest; node; root)
 open import Data.List using (List; _∷_; [])
 open import Data.List.Membership.Propositional
 import Data.List.Relation.Unary.AllPairs as AllPairs
@@ -30,7 +30,7 @@ data Siblings {A : Set ℓ} (_∼_ : Rel A ℓ₁) : Pred (Rose A) (ℓ ⊔ ℓ�
          Siblings _∼_ (node r cs)
 
 map : P ⇒ Q → Siblings P t → Siblings Q t
-map' : ∀ {ts : List (Rose A)} → P ⇒ Q → List.All (Siblings P) ts → List.All (Siblings Q) ts
+map' : ∀ {ts : Forest A} → P ⇒ Q → List.All (Siblings P) ts → List.All (Siblings Q) ts
 map P⇒Q (node x cs) = node (AllPairs.map P⇒Q x) (map' P⇒Q cs)
 map' P⇒Q List.[] = List.[]
 map' P⇒Q (px List.∷ ts) = map P⇒Q px List.∷ map' P⇒Q ts

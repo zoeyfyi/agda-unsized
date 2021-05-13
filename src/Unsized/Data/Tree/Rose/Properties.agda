@@ -30,7 +30,7 @@ private
     A B C : Set ℓ
     t t₁ t₂ : Rose A
     r r₁ r₂ : A
-    cs cs₁ cs₂ : List (Rose A)
+    cs cs₁ cs₂ : Forest A
     
 -----------------------------------------------------------------------
 -- node
@@ -48,7 +48,7 @@ node-dec : Dec (r₁ ≡ r₂) → Dec (cs₁ ≡ cs₂) → Dec (node r₁ cs�
 node-dec r₁≟r₂ cs₁≟cs₂ = Decidable.map′ (uncurry (cong₂ node)) node-injective (r₁≟r₂ ×-dec cs₁≟cs₂)
 
 ≡-dec : DecidableEquality A → DecidableEquality (Rose A)
-≡-dec' : DecidableEquality A → DecidableEquality (List (Rose A))
+≡-dec' : DecidableEquality A → DecidableEquality (Forest A)
 ≡-dec _≟_ (node root₁ children₁) (node root₂ children₂) = node-dec (root₁ ≟ root₂) (≡-dec' _≟_ children₁ children₂)
 ≡-dec' _≟_ [] [] = yes refl
 ≡-dec' _≟_ [] (_ ∷ _) = no (λ ())
@@ -65,7 +65,7 @@ leaf-depth = refl
 -- map
 
 map-id : map id ≗ id {A = Rose A}
-map'-id : map' id ≗ id {A = List (Rose A)}
+map'-id : map' id ≗ id {A = Forest A}
 map-id (node root₁ children₁) = cong (node root₁) (map'-id children₁)
 map'-id [] = refl
 map'-id (c ∷ cs) = cong₂ _∷_ (map-id c) (map'-id cs)
@@ -113,7 +113,7 @@ map'-injective finj {c₁ ∷ cs₁} {c₂ ∷ cs₂} eq =
 
 foldr-map : (f : A → B) (n : B → List C → C) (ts : Rose A) →
             foldr n (map f ts) ≡ foldr (n ∘ f) ts
-foldr'-map : (f : A → B) (n : B → List C → C) (ts : List (Rose A)) →
+foldr'-map : (f : A → B) (n : B → List C → C) (ts : Forest A) →
              foldr' n (map' f ts) ≡ foldr' (n ∘ f) ts 
 foldr-map f n (node root₁ children₁) = cong (n (f root₁)) $ begin
   foldr' n (map' f children₁) ≡⟨ foldr'-map f n children₁ ⟩
@@ -127,7 +127,7 @@ foldr'-map f n (t ∷ ts) = begin
 -- depth
 
 depth-map : (f : A → B) (t : Rose A) → depth (map f t) ≡ depth t
-depth'-map : (f : A → B) (ts : List (Rose A)) → depth' (map' f ts) ≡ depth' ts
+depth'-map : (f : A → B) (ts : Forest A) → depth' (map' f ts) ≡ depth' ts
 depth-map f (node root₁ children₁) = cong suc $ begin
   depth' (map' f children₁) ≡⟨ depth'-map f children₁ ⟩
   depth' children₁          ∎
@@ -137,7 +137,7 @@ depth'-map f (t ∷ ts) = begin
     depth t ⊔ depth' ts                  ∎
 
 depth≤nodes : ∀ (t : Rose A) → depth t ≤ nodes t
-depth'≤nodes' : ∀ (cs : List (Rose A)) → depth' cs ≤ nodes' cs
+depth'≤nodes' : ∀ (cs : Forest A) → depth' cs ≤ nodes' cs
 depth≤nodes (node root₁ children₁) = s≤s (depth'≤nodes' children₁)
 depth'≤nodes' [] = z≤n
 depth'≤nodes' (c ∷ cs) = m≤o⇒n≤o⇒m⊔n≤o 
@@ -147,7 +147,7 @@ depth'≤nodes' (c ∷ cs) = m≤o⇒n≤o⇒m⊔n≤o
 -- flatten
 
 nodes≡length∘flatten : (t : Rose A) → nodes t ≡ List.length (flatten t) 
-nodes'≡length∘flatten' : (cs : List (Rose A)) → nodes' cs ≡ List.length (flatten' cs)
+nodes'≡length∘flatten' : (cs : Forest A) → nodes' cs ≡ List.length (flatten' cs)
 nodes≡length∘flatten (node root₁ children₁) = cong suc (nodes'≡length∘flatten' children₁)
 nodes'≡length∘flatten' [] = refl
 nodes'≡length∘flatten' (c ∷ cs) = 

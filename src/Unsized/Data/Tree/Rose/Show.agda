@@ -9,7 +9,7 @@ open import Data.List.Base as List using (List; []; [_]; _∷_; _∷ʳ_)
 open import Data.Nat.Base using (ℕ; _∸_)
 open import Data.Product using (_×_; _,_)
 open import Data.String.Base hiding (show)
-open import Unsized.Data.Tree.Rose using (Rose; node; map)
+open import Unsized.Data.Tree.Rose using (Rose; Forest; node; map)
 open import Function.Base using (flip; _∘′_; id)
 
 private
@@ -35,7 +35,7 @@ display t = DList.toList (go (([] , t) ∷ []))
     childrenPrefixes as = List.replicate (List.length as ∸ 1) true ∷ʳ false
 
     go : List (List Bool × Rose (List String)) → DList String
-    go' : List (List Bool) → List (Rose (List String)) → DList String
+    go' : List (List Bool) → Forest (List String) → DList String
     go'' : List Bool → Rose (List String) → DList String
 
     go []              = DList.[]
