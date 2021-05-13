@@ -4,6 +4,7 @@ module Unsized.Data.Tree.Rose.Properties where
 
 open import Data.List using (List; []; _∷_)
 import Data.List.Properties as List
+import Data.Nat.Properties as Nat
 import Data.List.Relation.Unary.All as List
 open import Data.Product using (_×_; _,_; uncurry; curry)
 import Data.List as List
@@ -13,9 +14,11 @@ open import Data.Nat
 open import Relation.Nullary
 open import Unsized.Data.Tree.Rose
 open import Unsized.Data.Tree.Rose.Relation.Unary.All using (All)
+open import Unsized.Util
 open import Function.Base
 open import Function.Definitions
 import Relation.Nullary.Decidable as Decidable
+open import Relation.Unary using (Pred; Decidable)
 open import Relation.Nullary.Product using (_×-dec_)
 open import Relation.Binary.PropositionalEquality
 open import Relation.Binary using (DecidableEquality)
@@ -51,6 +54,12 @@ node-dec r₁≟r₂ cs₁≟cs₂ = Decidable.map′ (uncurry (cong₂ node)) n
 ≡-dec' _≟_ [] (_ ∷ _) = no (λ ())
 ≡-dec' _≟_ (_ ∷ _) [] = no (λ ())
 ≡-dec' _≟_ (c₁ ∷ cs₁) (c₂ ∷ cs₂) = List.∷-dec (≡-dec _≟_ c₁ c₂) (≡-dec' _≟_ cs₁ cs₂)
+
+------------------------------------------------------------------------
+-- leaf
+
+leaf-depth : depth (leaf r) ≡ 1
+leaf-depth = refl
 
 ------------------------------------------------------------------------
 -- map
@@ -106,11 +115,9 @@ foldr-map : (f : A → B) (n : B → List C → C) (ts : Rose A) →
             foldr n (map f ts) ≡ foldr (n ∘ f) ts
 foldr'-map : (f : A → B) (n : B → List C → C) (ts : List (Rose A)) →
              foldr' n (map' f ts) ≡ foldr' (n ∘ f) ts 
-
 foldr-map f n (node root₁ children₁) = cong (n (f root₁)) $ begin
   foldr' n (map' f children₁) ≡⟨ foldr'-map f n children₁ ⟩
   foldr' (n ∘ f) children₁    ∎
-
 foldr'-map f n [] = refl
 foldr'-map f n (t ∷ ts) = begin
   foldr n (map f t) ∷ foldr' n (map' f ts) ≡⟨ cong₂ _∷_ (foldr-map f n t) (foldr'-map f n ts) ⟩ 
@@ -128,3 +135,21 @@ depth'-map f [] = refl
 depth'-map f (t ∷ ts) = begin 
     depth (map f t) ⊔ depth' (map' f ts) ≡⟨ cong₂ _⊔_ (depth-map f t) (depth'-map f ts) ⟩ 
     depth t ⊔ depth' ts                  ∎
+
+depth≤nodes : ∀ (t : Rose A) → depth t ≤ nodes t
+depth'≤nodes' : ∀ (cs : List (Rose A)) → depth' cs ≤ nodes' cs
+depth≤nodes (node root₁ children₁) = s≤s (depth'≤nodes' children₁)
+depth'≤nodes' [] = z≤n
+depth'≤nodes' (c ∷ cs) = m≤o⇒n≤o⇒m⊔n≤o 
+  (m≤n⇒m≤n+o (depth≤nodes c)) (m≤o⇒m≤n+o (depth'≤nodes' cs))
+
+------------------------------------------------------------------------
+-- flatten
+
+nodes≡length∘flatten : (t : Rose A) → nodes t ≡ List.length (flatten t) 
+nodes'≡length∘flatten' : (cs : List (Rose A)) → nodes' cs ≡ List.length (flatten' cs)
+nodes≡length∘flatten (node root₁ children₁) = cong suc (nodes'≡length∘flatten' children₁)
+nodes'≡length∘flatten' [] = refl
+nodes'≡length∘flatten' (c ∷ cs) = 
+  cong suc (trans (cong₂ _+_ (nodes'≡length∘flatten' (children c)) (nodes'≡length∘flatten' cs)) 
+                  (sym (List.length-++ (flatten' (children c)))))
