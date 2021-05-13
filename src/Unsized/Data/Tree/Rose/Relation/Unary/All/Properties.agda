@@ -204,7 +204,6 @@ module _ (P? : Decidable P) where
 ------------------------------------------------------------------------
 -- filterChildren
 
-
   all-filterChildren : ∀ r cs → P r → All P (filterChildren P? (node r cs))
   all-filterChildren r cs pr = node pr (all-filter' cs)
 
@@ -212,3 +211,19 @@ module _ (P? : Decidable P) where
   filterChildren⁺ (node x x₁) = node x (filter'⁺ x₁)
 
   -- no elimination rule for filterChildren (see above)
+
+------------------------------------------------------------------------
+-- flatten
+
+flatten⁺ : All P t → List.All P (flatten t)
+flatten'⁺ : List.All (All P) cs → List.All P (flatten' cs)
+flatten⁺ (node x x₁) = x List.∷ flatten'⁺ x₁
+flatten'⁺ List.[] = List.[]
+flatten'⁺ (px List.∷ x) = AllList.++⁺ (flatten⁺ px) (flatten'⁺ x)
+
+flatten⁻ : List.All P (flatten t) → All P t
+flatten'⁻ : List.All P (flatten' cs) → List.All (All P) cs
+flatten⁻ (px List.∷ x) = node px (flatten'⁻ x)
+flatten'⁻ {cs = []} x = List.[]
+flatten'⁻ {cs = c ∷ cs} (x) with AllList.++⁻ (flatten c) x 
+... | fst , snd = flatten⁻ fst List.∷ flatten'⁻ snd
