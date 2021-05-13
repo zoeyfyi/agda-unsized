@@ -17,6 +17,22 @@ private
   variable
     ℓ : Level
     A B C : Set ℓ
+    t t₁ t₂ : Rose A
+    r r₁ r₂ : A
+    cs cs₁ cs₂ : List (Rose A)
+    
+-----------------------------------------------------------------------
+-- node
+
+node-injective : node r₁ cs₁ ≡ node r₂ cs₂ → r₁ ≡ r₂ × cs₁ ≡ cs₂
+node-injective refl = refl , refl
+
+node-injectiveₗ : node r₁ cs₁ ≡ node r₂ cs₂ → r₁ ≡ r₂
+node-injectiveₗ refl = refl
+
+node-injectiveᵣ : node r₁ cs₁ ≡ node r₂ cs₂ → cs₁ ≡ cs₂
+node-injectiveᵣ refl = refl
+
     
 ------------------------------------------------------------------------
 -- map properties
