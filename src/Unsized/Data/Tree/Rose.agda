@@ -4,7 +4,7 @@ module Unsized.Data.Tree.Rose where
 
 open import Data.Bool
 open import Data.Maybe using (Maybe; just; nothing)
-open import Data.List using (List; []; _∷_)
+open import Data.List using (List; []; _∷_; _?∷_)
 import Data.List as List
 open import Data.List.Extrema.Nat using (max)
 open import Level using (Level)
@@ -63,8 +63,8 @@ module _ {P : Pred A ℓ} (P? : Decidable P) where
 
   filter' [] = []
   filter' (t@(node root₁ children₁) ∷ ts) = if does (P? root₁)
-    then t ∷ filter' children₁
-    else filter' children₁
+    then filter t ?∷ filter' ts
+    else filter' ts
   
   filterChildren : Rose A → Rose A
   filterChildren (node root₁ children₁) = node root₁ (filter' children₁)
