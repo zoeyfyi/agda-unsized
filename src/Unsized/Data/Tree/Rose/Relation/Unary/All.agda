@@ -30,7 +30,12 @@ private
 ------------------------------------------------------------------------
 -- Definitions
 
-data All {A : Set ℓ₁} (P : Pred A ℓ₂) : Pred (Rose A) (ℓ₁ ⊔ ℓ₂) where
+data All {A : Set ℓ₁} (P : Pred A ℓ₂) : Pred (Rose A) (ℓ₁ ⊔ ℓ₂)
+
+Allᶠ : {A : Set ℓ₁} → Pred A ℓ₂ → Pred (Forest A) (ℓ₁ ⊔ ℓ₂)
+Allᶠ P = List.All (All P)
+
+data All P where
   node : ∀ {r cs} → P r → List.All (All P) cs → All P (node r cs)
 
 ------------------------------------------------------------------------
@@ -39,28 +44,28 @@ data All {A : Set ℓ₁} (P : Pred A ℓ₂) : Pred (Rose A) (ℓ₁ ⊔ ℓ₂
 root : ∀ {r cs} → All P (node r cs) → P r
 root (node p _) = p
 
-children : All P t → List.All (All P) (Rose.children t)
+children : ∀ {r cs} → All P (node r cs) → Allᶠ P cs
 children (node _ pcs) = pcs
 
 map : P ⊆ Q → All P t → All Q t
-map' : ∀ {ts : Forest A} → P ⊆ Q → List.All (All P) ts → List.All (All Q) ts
-map g (node x x₁) = node (g x) (map' g x₁)
-map' g List.[] = List.[]
-map' g (px List.∷ ts) = map g px List.∷ map' g ts
+mapᶠ : ∀ {ts : Forest A} → P ⊆ Q → Allᶠ P ts → Allᶠ Q ts
+map g (node x x₁) = node (g x) (mapᶠ g x₁)
+mapᶠ g List.[] = List.[]
+mapᶠ g (px List.∷ ts) = map g px List.∷ mapᶠ g ts
 
 module _(S : Setoid ℓ₁ ℓ₂) {P : Pred (Setoid.Carrier S) ℓ₃} where
   open Setoid S renaming (Carrier to C; refl to refl₁)
   open SetoidMembership S renaming (_∈_ to _∈ₛ_)
 
   tabulateₛ : (∀ {x} → x ∈ₛ t → P x) → All P t
-  tabulateₛ' : ∀ {ts : Forest C} → 
+  tabulateₛᶠ : ∀ {ts : Forest C} → 
                (∀ {x t} → t ∈ₗ ts → x ∈ₛ t → P x) → 
-               List.All (All P) ts
+               Allᶠ P ts
   tabulateₛ {node root children} hyp = 
-    node (hyp (here refl₁)) (tabulateₛ' (λ x x₁ → hyp (there x x₁)))
-  tabulateₛ' {ts = []} hyp = List.[]
-  tabulateₛ' {ts = t ∷ ts} hyp = 
-    tabulateₛ (hyp (AnyList.here refl)) List.∷ tabulateₛ' (λ x x₁ → hyp (AnyList.there x) x₁)
+    node (hyp (here refl₁)) (tabulateₛᶠ (λ x x₁ → hyp (there x x₁)))
+  tabulateₛᶠ {ts = []} hyp = List.[]
+  tabulateₛᶠ {ts = t ∷ ts} hyp = 
+    tabulateₛ (hyp (AnyList.here refl)) List.∷ tabulateₛᶠ (λ x x₁ → hyp (AnyList.there x) x₁)
 
 tabulate : (∀ {x} → x ∈ t → P x) → All P t
 tabulate = tabulateₛ (P.setoid _)
@@ -89,13 +94,13 @@ module _ (S : Setoid ℓ₁ ℓ₂) {P : Pred (Setoid.Carrier S) ℓ₃} where
 -- Properties of predicates preserved by All
 
 all? : Decidable P → Decidable (All P)
-all?' : Decidable P → Decidable (List.All (All P))
-all? p (node root' children') with p root' | all?' p children'
+all?ᶠ : Decidable P → Decidable (Allᶠ P)
+all? p (node root' children') with p root' | all?ᶠ p children'
 ... | yes pr | yes pcs = yes (node pr pcs)
 ... | no ¬pr | _       = no (¬pr ∘ root)
 ... | yes _  | no ¬pcs = no (¬pcs ∘ children)
-all?' p [] = yes List.[]
-all?' p (c ∷ cs) with all? p c | all?' p cs
+all?ᶠ p [] = yes List.[]
+all?ᶠ p (c ∷ cs) with all? p c | all?ᶠ p cs
 ... | yes pc | yes pcs = yes (pc List.∷ pcs)
 ... | no ¬pc | _ = no (λ { (px List.∷ x) → ¬pc px })
 ... | yes _ | no ¬pcs = no (λ { (px List.∷ x) → ¬pcs x })

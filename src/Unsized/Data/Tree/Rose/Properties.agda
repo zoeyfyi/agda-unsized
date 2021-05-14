@@ -48,12 +48,12 @@ node-dec : Dec (r₁ ≡ r₂) → Dec (cs₁ ≡ cs₂) → Dec (node r₁ cs�
 node-dec r₁≟r₂ cs₁≟cs₂ = Decidable.map′ (uncurry (cong₂ node)) node-injective (r₁≟r₂ ×-dec cs₁≟cs₂)
 
 ≡-dec : DecidableEquality A → DecidableEquality (Rose A)
-≡-dec' : DecidableEquality A → DecidableEquality (Forest A)
-≡-dec _≟_ (node root₁ children₁) (node root₂ children₂) = node-dec (root₁ ≟ root₂) (≡-dec' _≟_ children₁ children₂)
-≡-dec' _≟_ [] [] = yes refl
-≡-dec' _≟_ [] (_ ∷ _) = no (λ ())
-≡-dec' _≟_ (_ ∷ _) [] = no (λ ())
-≡-dec' _≟_ (c₁ ∷ cs₁) (c₂ ∷ cs₂) = List.∷-dec (≡-dec _≟_ c₁ c₂) (≡-dec' _≟_ cs₁ cs₂)
+≡-decᶠ : DecidableEquality A → DecidableEquality (Forest A)
+≡-dec _≟_ (node root₁ children₁) (node root₂ children₂) = node-dec (root₁ ≟ root₂) (≡-decᶠ _≟_ children₁ children₂)
+≡-decᶠ _≟_ [] [] = yes refl
+≡-decᶠ _≟_ [] (_ ∷ _) = no (λ ())
+≡-decᶠ _≟_ (_ ∷ _) [] = no (λ ())
+≡-decᶠ _≟_ (c₁ ∷ cs₁) (c₂ ∷ cs₂) = List.∷-dec (≡-dec _≟_ c₁ c₂) (≡-decᶠ _≟_ cs₁ cs₂)
 
 ------------------------------------------------------------------------
 -- leaf
@@ -65,91 +65,91 @@ leaf-depth = refl
 -- map
 
 map-id : map id ≗ id {A = Rose A}
-map'-id : map' id ≗ id {A = Forest A}
-map-id (node root₁ children₁) = cong (node root₁) (map'-id children₁)
-map'-id [] = refl
-map'-id (c ∷ cs) = cong₂ _∷_ (map-id c) (map'-id cs)
+mapᶠ-id : mapᶠ id ≗ id {A = Forest A}
+map-id (node root₁ children₁) = cong (node root₁) (mapᶠ-id children₁)
+mapᶠ-id [] = refl
+mapᶠ-id (c ∷ cs) = cong₂ _∷_ (map-id c) (mapᶠ-id cs)
 
 map-id₂ : ∀ {f : A → A} → All (λ x → f x ≡ x) t → map f t ≡ t
-map'-id₂ : ∀ {f : A → A} → List.All (All (λ x → f x ≡ x)) cs → map' f cs ≡ cs
-map-id₂ (All.node x x₁) = cong₂ node x (map'-id₂ x₁)
-map'-id₂ List.[] = refl
-map'-id₂ (px List.∷ x) = cong₂ _∷_ (map-id₂ px) (map'-id₂ x)
+mapᶠ-id₂ : ∀ {f : A → A} → List.All (All (λ x → f x ≡ x)) cs → mapᶠ f cs ≡ cs
+map-id₂ (All.node x x₁) = cong₂ node x (mapᶠ-id₂ x₁)
+mapᶠ-id₂ List.[] = refl
+mapᶠ-id₂ (px List.∷ x) = cong₂ _∷_ (map-id₂ px) (mapᶠ-id₂ x)
 
 map-cong : ∀ {f g : A → B} → f ≗ g → map f ≗ map g
-map'-cong : ∀ {f g : A → B} → f ≗ g → map' f ≗ map' g
-map-cong f≗g (node root₁ children₁) = cong₂ node (f≗g root₁) (map'-cong f≗g children₁)
-map'-cong f≗g [] = refl
-map'-cong f≗g (c ∷ cs) = cong₂ _∷_ (map-cong f≗g c) (map'-cong f≗g cs)
+mapᶠ-cong : ∀ {f g : A → B} → f ≗ g → mapᶠ f ≗ mapᶠ g
+map-cong f≗g (node root₁ children₁) = cong₂ node (f≗g root₁) (mapᶠ-cong f≗g children₁)
+mapᶠ-cong f≗g [] = refl
+mapᶠ-cong f≗g (c ∷ cs) = cong₂ _∷_ (map-cong f≗g c) (mapᶠ-cong f≗g cs)
 
 map-cong₂ : ∀ {f g : A → B} → All (λ x → f x ≡ g x) t → map f t ≡ map g t
-map'-cong₂ : ∀ {f g : A → B} → List.All (All (λ x → f x ≡ g x)) cs → map' f cs ≡ map' g cs
-map-cong₂ (All.node x x₁) = cong₂ node x (map'-cong₂ x₁)
-map'-cong₂ List.[] = refl
-map'-cong₂ (px List.∷ x) = cong₂ _∷_ (map-cong₂ px) (map'-cong₂ x)
+mapᶠ-cong₂ : ∀ {f g : A → B} → List.All (All (λ x → f x ≡ g x)) cs → mapᶠ f cs ≡ mapᶠ g cs
+map-cong₂ (All.node x x₁) = cong₂ node x (mapᶠ-cong₂ x₁)
+mapᶠ-cong₂ List.[] = refl
+mapᶠ-cong₂ (px List.∷ x) = cong₂ _∷_ (map-cong₂ px) (mapᶠ-cong₂ x)
 
 map-compose : (f : A → B) (g : B → C) → map (g ∘ f) ≗ map g ∘ map f
-map'-compose : (f :  A → B) (g : B → C) → map' (g ∘ f) ≗ map' g ∘ map' f
+mapᶠ-compose : (f :  A → B) (g : B → C) → mapᶠ (g ∘ f) ≗ mapᶠ g ∘ mapᶠ f
 map-compose f g (node r []) = refl
 map-compose f g (node r (c ∷ cs)) = cong (node (g (f r))) $ begin
-  map (g ∘ f) c ∷ map' (g ∘ f) cs          ≡⟨ cong₂ _∷_ (map-compose f g c) (map'-compose f g cs) ⟩
-  (map g ∘ map f) c ∷ (map' g ∘ map' f) cs ∎
-map'-compose f g [] = refl
-map'-compose f g (t ∷ ts) = begin
-  map (g ∘ f) t ∷ map' (g ∘ f) ts          ≡⟨ cong₂ _∷_ (map-compose f g t) (map'-compose f g ts) ⟩
-  (map g ∘ map f) t ∷ (map' g ∘ map' f) ts ≡⟨⟩
-  (map' g ∘ map' f) (t ∷ ts)               ∎
+  map (g ∘ f) c ∷ mapᶠ (g ∘ f) cs          ≡⟨ cong₂ _∷_ (map-compose f g c) (mapᶠ-compose f g cs) ⟩
+  (map g ∘ map f) c ∷ (mapᶠ g ∘ mapᶠ f) cs ∎
+mapᶠ-compose f g [] = refl
+mapᶠ-compose f g (t ∷ ts) = begin
+  map (g ∘ f) t ∷ mapᶠ (g ∘ f) ts          ≡⟨ cong₂ _∷_ (map-compose f g t) (mapᶠ-compose f g ts) ⟩
+  (map g ∘ map f) t ∷ (mapᶠ g ∘ mapᶠ f) ts ≡⟨⟩
+  (mapᶠ g ∘ mapᶠ f) (t ∷ ts)               ∎
 
 map-injective : ∀ {f : A → B} → Injective _≡_ _≡_ f → Injective _≡_ _≡_ (map f)
-map'-injective : ∀ {f : A → B} → Injective _≡_ _≡_ f → Injective _≡_ _≡_ (map' f)
+mapᶠ-injective : ∀ {f : A → B} → Injective _≡_ _≡_ f → Injective _≡_ _≡_ (mapᶠ f)
 map-injective finj {node root₁ children₁} {node root₂ children₂} eq = 
-  let fr₁≡fr₂ , fcs₁≡fcs₂ = node-injective eq in cong₂ node (finj fr₁≡fr₂) (map'-injective finj fcs₁≡fcs₂)
-map'-injective finj {[]} {[]} eq = refl
-map'-injective finj {c₁ ∷ cs₁} {c₂ ∷ cs₂} eq = 
-  let fc₁≡fc₂ , fcs₁≡fcs₂ = List.∷-injective eq in cong₂ _∷_ (map-injective finj fc₁≡fc₂) (map'-injective finj fcs₁≡fcs₂)
+  let fr₁≡fr₂ , fcs₁≡fcs₂ = node-injective eq in cong₂ node (finj fr₁≡fr₂) (mapᶠ-injective finj fcs₁≡fcs₂)
+mapᶠ-injective finj {[]} {[]} eq = refl
+mapᶠ-injective finj {c₁ ∷ cs₁} {c₂ ∷ cs₂} eq = 
+  let fc₁≡fc₂ , fcs₁≡fcs₂ = List.∷-injective eq in cong₂ _∷_ (map-injective finj fc₁≡fc₂) (mapᶠ-injective finj fcs₁≡fcs₂)
 
 ------------------------------------------------------------------------
 -- foldr
 
 foldr-map : (f : A → B) (n : B → List C → C) (ts : Rose A) →
             foldr n (map f ts) ≡ foldr (n ∘ f) ts
-foldr'-map : (f : A → B) (n : B → List C → C) (ts : Forest A) →
-             foldr' n (map' f ts) ≡ foldr' (n ∘ f) ts 
+foldrᶠ-map : (f : A → B) (n : B → List C → C) (ts : Forest A) →
+             foldrᶠ n (mapᶠ f ts) ≡ foldrᶠ (n ∘ f) ts 
 foldr-map f n (node root₁ children₁) = cong (n (f root₁)) $ begin
-  foldr' n (map' f children₁) ≡⟨ foldr'-map f n children₁ ⟩
-  foldr' (n ∘ f) children₁    ∎
-foldr'-map f n [] = refl
-foldr'-map f n (t ∷ ts) = begin
-  foldr n (map f t) ∷ foldr' n (map' f ts) ≡⟨ cong₂ _∷_ (foldr-map f n t) (foldr'-map f n ts) ⟩ 
-  foldr (n ∘ f) t ∷ foldr' (n ∘ f) ts      ∎
+  foldrᶠ n (mapᶠ f children₁) ≡⟨ foldrᶠ-map f n children₁ ⟩
+  foldrᶠ (n ∘ f) children₁    ∎
+foldrᶠ-map f n [] = refl
+foldrᶠ-map f n (t ∷ ts) = begin
+  foldr n (map f t) ∷ foldrᶠ n (mapᶠ f ts) ≡⟨ cong₂ _∷_ (foldr-map f n t) (foldrᶠ-map f n ts) ⟩ 
+  foldr (n ∘ f) t ∷ foldrᶠ (n ∘ f) ts      ∎
 
 ------------------------------------------------------------------------
 -- depth
 
 depth-map : (f : A → B) (t : Rose A) → depth (map f t) ≡ depth t
-depth'-map : (f : A → B) (ts : Forest A) → depth' (map' f ts) ≡ depth' ts
+depthᶠ-map : (f : A → B) (ts : Forest A) → depthᶠ (mapᶠ f ts) ≡ depthᶠ ts
 depth-map f (node root₁ children₁) = cong suc $ begin
-  depth' (map' f children₁) ≡⟨ depth'-map f children₁ ⟩
-  depth' children₁          ∎
-depth'-map f [] = refl
-depth'-map f (t ∷ ts) = begin 
-    depth (map f t) ⊔ depth' (map' f ts) ≡⟨ cong₂ _⊔_ (depth-map f t) (depth'-map f ts) ⟩ 
-    depth t ⊔ depth' ts                  ∎
+  depthᶠ (mapᶠ f children₁) ≡⟨ depthᶠ-map f children₁ ⟩
+  depthᶠ children₁          ∎
+depthᶠ-map f [] = refl
+depthᶠ-map f (t ∷ ts) = begin 
+    depth (map f t) ⊔ depthᶠ (mapᶠ f ts) ≡⟨ cong₂ _⊔_ (depth-map f t) (depthᶠ-map f ts) ⟩ 
+    depth t ⊔ depthᶠ ts                  ∎
 
 depth≤nodes : ∀ (t : Rose A) → depth t ≤ nodes t
-depth'≤nodes' : ∀ (cs : Forest A) → depth' cs ≤ nodes' cs
-depth≤nodes (node root₁ children₁) = s≤s (depth'≤nodes' children₁)
-depth'≤nodes' [] = z≤n
-depth'≤nodes' (c ∷ cs) = m≤o⇒n≤o⇒m⊔n≤o 
-  (m≤n⇒m≤n+o (depth≤nodes c)) (m≤o⇒m≤n+o (depth'≤nodes' cs))
+depthᶠ≤nodesᶠ : ∀ (cs : Forest A) → depthᶠ cs ≤ nodesᶠ cs
+depth≤nodes (node root₁ children₁) = s≤s (depthᶠ≤nodesᶠ children₁)
+depthᶠ≤nodesᶠ [] = z≤n
+depthᶠ≤nodesᶠ (c ∷ cs) = m≤o⇒n≤o⇒m⊔n≤o 
+  (m≤n⇒m≤n+o (depth≤nodes c)) (m≤o⇒m≤n+o (depthᶠ≤nodesᶠ cs))
 
 ------------------------------------------------------------------------
 -- flatten
 
 nodes≡length∘flatten : (t : Rose A) → nodes t ≡ List.length (flatten t) 
-nodes'≡length∘flatten' : (cs : Forest A) → nodes' cs ≡ List.length (flatten' cs)
-nodes≡length∘flatten (node root₁ children₁) = cong suc (nodes'≡length∘flatten' children₁)
-nodes'≡length∘flatten' [] = refl
-nodes'≡length∘flatten' (c ∷ cs) = 
-  cong suc (trans (cong₂ _+_ (nodes'≡length∘flatten' (children c)) (nodes'≡length∘flatten' cs)) 
-                  (sym (List.length-++ (flatten' (children c)))))
+nodesᶠ≡length∘flattenᶠ : (cs : Forest A) → nodesᶠ cs ≡ List.length (flattenᶠ cs)
+nodes≡length∘flatten (node root₁ children₁) = cong suc (nodesᶠ≡length∘flattenᶠ children₁)
+nodesᶠ≡length∘flattenᶠ [] = refl
+nodesᶠ≡length∘flattenᶠ (c ∷ cs) = 
+  cong suc (trans (cong₂ _+_ (nodesᶠ≡length∘flattenᶠ (children c)) (nodesᶠ≡length∘flattenᶠ cs)) 
+                  (sym (List.length-++ (flattenᶠ (children c)))))

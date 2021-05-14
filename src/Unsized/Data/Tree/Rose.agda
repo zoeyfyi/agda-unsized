@@ -30,6 +30,9 @@ record Rose A where
   
 open Rose public
 
+roots : Forest A → List A
+roots = List.map root
+
 leaf : A → Rose A
 leaf a = node a []
 
@@ -38,48 +41,48 @@ leaves [] = []
 leaves (a ∷ as) = (leaf a) ∷ (leaves as)
 
 map : (A → B) → Rose A → Rose B
-map' : (A → B) → Forest A → Forest B
-map f (node root₁ children₁) = node (f root₁) (map' f children₁)
-map' f [] = []
-map' f (x ∷ a) = map f x ∷ map' f a
+mapᶠ : (A → B) → Forest A → Forest B
+map f (node root₁ children₁) = node (f root₁) (mapᶠ f children₁)
+mapᶠ f [] = []
+mapᶠ f (x ∷ a) = map f x ∷ mapᶠ f a
 
 foldr : (A → List B → B) → Rose A → B
-foldr' : (A → List B → B) → Forest A → List B
-foldr n (node r cs) = n r (foldr' n cs)
-foldr' n [] = []
-foldr' n (x ∷ t) = foldr n x ∷ (foldr' n t)
+foldrᶠ : (A → List B → B) → Forest A → List B
+foldr n (node r cs) = n r (foldrᶠ n cs)
+foldrᶠ n [] = []
+foldrᶠ n (x ∷ t) = foldr n x ∷ (foldrᶠ n t)
 
 depth : Rose A → ℕ
-depth' : Forest A → ℕ
-depth (node root₁ children₁) = suc (depth' children₁)
-depth' [] = 0
-depth' (x ∷ ns) = (depth x) ⊔ (depth' ns)
+depthᶠ : Forest A → ℕ
+depth (node root₁ children₁) = suc (depthᶠ children₁)
+depthᶠ [] = 0
+depthᶠ (x ∷ ns) = (depth x) ⊔ (depthᶠ ns)
 
 nodes : Rose A → ℕ
-nodes' : Forest A → ℕ
-nodes (node root₁ children₁) = suc (nodes' children₁)
-nodes' [] = 0
-nodes' (x ∷ ns) = nodes x + nodes' ns
+nodesᶠ : Forest A → ℕ
+nodes (node root₁ children₁) = suc (nodesᶠ children₁)
+nodesᶠ [] = 0
+nodesᶠ (x ∷ ns) = nodes x + nodesᶠ ns
 
 module _ {P : Pred A ℓ} (P? : Decidable P) where
 
   filter : Rose A → Maybe (Rose A)
-  filter' : Forest A → Forest A
+  filterᶠ : Forest A → Forest A
 
   filter (node root₁ children₁) = if does (P? root₁) 
-    then just (node root₁ (filter' children₁)) 
+    then just (node root₁ (filterᶠ children₁)) 
     else nothing
 
-  filter' [] = []
-  filter' (t@(node root₁ children₁) ∷ ts) = if does (P? root₁)
-    then filter t ?∷ filter' ts
-    else filter' ts
+  filterᶠ [] = []
+  filterᶠ (t@(node root₁ children₁) ∷ ts) = if does (P? root₁)
+    then filter t ?∷ filterᶠ ts
+    else filterᶠ ts
   
   filterChildren : Rose A → Rose A
-  filterChildren (node root₁ children₁) = node root₁ (filter' children₁)
+  filterChildren (node root₁ children₁) = node root₁ (filterᶠ children₁)
 
 flatten : Rose A → List A
-flatten' : Forest A → List A
-flatten' [] = []
-flatten' (t ∷ ts) = (flatten t) List.++ (flatten' ts)
-flatten (node root₁ children₁) = root₁ ∷ flatten' children₁
+flattenᶠ : Forest A → List A
+flattenᶠ [] = []
+flattenᶠ (t ∷ ts) = (flatten t) List.++ (flattenᶠ ts)
+flatten (node root₁ children₁) = root₁ ∷ flattenᶠ children₁
