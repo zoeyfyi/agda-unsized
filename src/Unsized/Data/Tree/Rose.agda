@@ -74,9 +74,7 @@ module _ {P : Pred A ℓ} (P? : Decidable P) where
     else nothing
 
   filterᶠ [] = []
-  filterᶠ (t@(node root₁ children₁) ∷ ts) = if does (P? root₁)
-    then filter t ?∷ filterᶠ ts
-    else filterᶠ ts
+  filterᶠ (t ∷ ts) = (filter t) ?∷ (filterᶠ ts)
   
   filterChildren : Rose A → Rose A
   filterChildren (node root₁ children₁) = node root₁ (filterᶠ children₁)

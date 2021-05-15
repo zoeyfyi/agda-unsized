@@ -3,6 +3,7 @@
 module Unsized.Data.Tree.Rose.Properties where
 
 open import Data.List using (List; []; _∷_)
+import Data.List as L
 import Data.List.Properties as List
 import Data.Nat.Properties as Nat
 import Data.List.Relation.Unary.All as List
@@ -14,7 +15,7 @@ open import Data.Nat
 open import Relation.Nullary
 open import Unsized.Data.Tree.Rose
 open import Unsized.Data.Tree.Rose.Relation.Unary.All using (All)
-open import Unsized.Util
+open import Unsized.Util.Nat
 open import Function.Base
 open import Function.Definitions
 import Relation.Nullary.Decidable as Decidable
@@ -26,7 +27,7 @@ open ≡-Reasoning
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ₁ : Level
     A B C : Set ℓ
     t t₁ t₂ : Rose A
     r r₁ r₂ : A
@@ -153,3 +154,28 @@ nodesᶠ≡length∘flattenᶠ [] = refl
 nodesᶠ≡length∘flattenᶠ (c ∷ cs) = 
   cong suc (trans (cong₂ _+_ (nodesᶠ≡length∘flattenᶠ (children c)) (nodesᶠ≡length∘flattenᶠ cs)) 
                   (sym (List.length-++ (flattenᶠ (children c)))))
+
+------------------------------------------------------------------------
+-- roots
+
+root∘map : ∀ (f : A → B) (t : Rose A) → root (map f t) ≡ f (root t)
+root∘map _ (node _ _) = refl
+
+roots∘mapᶠ : ∀ (f : A → B) (cs : Forest A) → roots (mapᶠ f cs) ≡ L.map (f ∘ root) cs
+roots∘mapᶠ _ [] = refl
+roots∘mapᶠ f (c ∷ cs) = cong₂ _∷_ (root∘map f c) (roots∘mapᶠ f cs)
+
+------------------------------------------------------------------------
+-- forest functions to map
+
+map∘map≡mapᶠ : ∀ (f : A → B) (cs : Forest A) → L.map (map f) cs ≡ mapᶠ f cs
+map∘map≡mapᶠ f [] = refl
+map∘map≡mapᶠ f (c ∷ cs) = cong (map f c ∷_) (map∘map≡mapᶠ f cs)
+
+module _ {A : Set ℓ} {P : Pred A ℓ₁} (P? : Decidable P) where
+
+  mapMaybe∘flatten≡flattenᶠ : ∀ (f : A → B) (cs : Forest A) → L.mapMaybe (filter P?) cs ≡ filterᶠ P? cs
+  mapMaybe∘flatten≡flattenᶠ f [] = refl
+  mapMaybe∘flatten≡flattenᶠ f (node r c ∷ cs) with P? r
+  ... | yes pr = cong (node r (filterᶠ P? c) ∷_) (mapMaybe∘flatten≡flattenᶠ f cs)
+  ... | no ¬pr = mapMaybe∘flatten≡flattenᶠ f cs
