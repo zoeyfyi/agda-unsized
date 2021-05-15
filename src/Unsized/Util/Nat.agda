@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Unsized.Util where
+module Unsized.Util.Nat where
 
 open import Data.Nat
 open import Data.Nat.Properties

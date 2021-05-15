@@ -23,10 +23,15 @@ private
     P Q : Rel A ℓ₁
     t : Rose A
     
-data Siblings {A : Set ℓ} (_∼_ : Rel A ℓ₁) : Pred (Rose A) (ℓ ⊔ ℓ₁) where
+data Siblings {A : Set ℓ} (_∼_ : Rel A ℓ₁) : Pred (Rose A) (ℓ ⊔ ℓ₁)
+
+Siblingsᶠ : {A : Set ℓ} → Rel A ℓ₁ → Pred (Forest A) (ℓ ⊔ ℓ₁)
+Siblingsᶠ _~_ = List.All (Siblings _~_)
+
+data Siblings _∼_ where
   node : ∀ {r cs} → 
          AllPairs (λ x y → (root x) ∼ (root y)) cs → 
-         List.All (Siblings _∼_) cs → 
+         Siblingsᶠ _∼_ cs → 
          Siblings _∼_ (node r cs)
 
 map : P ⇒ Q → Siblings P t → Siblings Q t
