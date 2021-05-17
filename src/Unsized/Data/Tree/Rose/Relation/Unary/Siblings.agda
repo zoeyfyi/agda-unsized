@@ -34,8 +34,9 @@ data Siblings _∼_ where
          Siblingsᶠ _∼_ cs → 
          Siblings _∼_ (node r cs)
 
+
 map : P ⇒ Q → Siblings P t → Siblings Q t
-map' : ∀ {ts : Forest A} → P ⇒ Q → List.All (Siblings P) ts → List.All (Siblings Q) ts
-map P⇒Q (node x cs) = node (AllPairs.map P⇒Q x) (map' P⇒Q cs)
-map' P⇒Q List.[] = List.[]
-map' P⇒Q (px List.∷ ts) = map P⇒Q px List.∷ map' P⇒Q ts
+mapᶠ : ∀ {ts : Forest A} → P ⇒ Q → List.All (Siblings P) ts → List.All (Siblings Q) ts
+map P⇒Q (node x cs) = node (AllPairs.map P⇒Q x) (mapᶠ P⇒Q cs)
+mapᶠ P⇒Q List.[] = List.[]
+mapᶠ P⇒Q (px List.∷ ts) = map P⇒Q px List.∷ mapᶠ P⇒Q ts
