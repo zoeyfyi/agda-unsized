@@ -16,15 +16,20 @@ open import Function
 
 private
   variable
-    ℓ ℓ₁ : Level
+    ℓ ℓ₁ ℓ₂ : Level
     A : Set ℓ
     P Q : Rel A ℓ₁
     t : Rose A
     
-data Parenthood {A : Set ℓ} (_∼_ : Rel A ℓ₁) : Pred (Rose A) (ℓ ⊔ ℓ₁) where
+data Parenthood {A : Set ℓ} (_∼_ : Rel A ℓ₁) : Pred (Rose A) (ℓ ⊔ ℓ₁) 
+
+Parenthoodᶠ : {A : Set ℓ₁} → Rel A ℓ₂ → Pred (Forest A) (ℓ₁ ⊔ ℓ₂)
+Parenthoodᶠ P = List.All (Parenthood P)
+
+data Parenthood _∼_ where
   node : ∀ {r cs} → 
          List.All ((r ∼_) ∘ root) cs → 
-         List.All (Parenthood _∼_) cs → 
+         Parenthoodᶠ _∼_ cs → 
          Parenthood _∼_ (node r cs)
 
 map : P ⇒ Q → Parenthood P t → Parenthood Q t
