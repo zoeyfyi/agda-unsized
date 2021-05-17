@@ -174,8 +174,8 @@ map∘map≡mapᶠ f (c ∷ cs) = cong (map f c ∷_) (map∘map≡mapᶠ f cs)
 
 module _ {A : Set ℓ} {P : Pred A ℓ₁} (P? : Decidable P) where
 
-  mapMaybe∘flatten≡flattenᶠ : ∀ (f : A → B) (cs : Forest A) → L.mapMaybe (filter P?) cs ≡ filterᶠ P? cs
-  mapMaybe∘flatten≡flattenᶠ f [] = refl
-  mapMaybe∘flatten≡flattenᶠ f (node r c ∷ cs) with P? r
-  ... | yes pr = cong (node r (filterᶠ P? c) ∷_) (mapMaybe∘flatten≡flattenᶠ f cs)
-  ... | no ¬pr = mapMaybe∘flatten≡flattenᶠ f cs
+  mapMaybe∘filter≡filterᶠ : ∀ (f : A → B) (cs : Forest A) → L.mapMaybe (filter P?) cs ≡ filterᶠ P? cs
+  mapMaybe∘filter≡filterᶠ f [] = refl
+  mapMaybe∘filter≡filterᶠ f (node r c ∷ cs) with P? r
+  ... | yes pr = cong (node r (filterᶠ P? c) ∷_) (mapMaybe∘filter≡filterᶠ f cs)
+  ... | no ¬pr = mapMaybe∘filter≡filterᶠ f cs
