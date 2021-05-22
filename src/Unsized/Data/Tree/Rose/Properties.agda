@@ -145,6 +145,22 @@ depthᶠ≤nodesᶠ (c ∷ cs) = m≤o⇒n≤o⇒m⊔n≤o
   (m≤n⇒m≤n+o (depth≤nodes c)) (m≤o⇒m≤n+o (depthᶠ≤nodesᶠ cs))
 
 ------------------------------------------------------------------------
+-- degree
+
+degree-map : (f : A → B) (t : Rose A) → degree (map f t) ≡ degree t
+degree-map f (node r []) = refl
+degree-map f (node r (c ∷ cs)) = cong suc (degree-map f (node r cs))
+
+------------------------------------------------------------------------
+-- maxDegree
+
+maxDegree-map : (f : A → B) (t : Rose A) → maxDegree (map f t) ≡ maxDegree t
+maxDegreeᶠ-map : (f : A → B) (t : Forest A) → maxDegreeᶠ (mapᶠ f t) ≡ maxDegreeᶠ t
+maxDegree-map f (node r cs) = cong₂ _⊔_ (degree-map f (node r cs)) (maxDegreeᶠ-map f cs)
+maxDegreeᶠ-map f [] = refl
+maxDegreeᶠ-map f (c ∷ cs) = cong₂ _⊔_ (maxDegree-map f c) (maxDegreeᶠ-map f cs)
+
+------------------------------------------------------------------------
 -- flatten
 
 nodes≡length∘flatten : (t : Rose A) → nodes t ≡ List.length (flatten t) 

@@ -64,6 +64,15 @@ nodes (node root₁ children₁) = suc (nodesᶠ children₁)
 nodesᶠ [] = 0
 nodesᶠ (x ∷ ns) = nodes x + nodesᶠ ns
 
+degree : Rose A → ℕ
+degree (node r cs) = List.length cs
+
+maxDegree : Rose A → ℕ
+maxDegreeᶠ : Forest A → ℕ
+maxDegree n@(node r cs) = degree n ⊔ maxDegreeᶠ cs
+maxDegreeᶠ [] = zero
+maxDegreeᶠ (t ∷ ts) = maxDegree t ⊔ maxDegreeᶠ ts
+
 module _ {P : Pred A ℓ} (P? : Decidable P) where
 
   filter : Rose A → Maybe (Rose A)
