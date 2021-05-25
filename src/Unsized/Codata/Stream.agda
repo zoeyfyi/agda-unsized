@@ -71,7 +71,7 @@ module _ {ℓ} {A : Set ℓ} where
   hd (odd as) = hd (tl as)
   tl (odd as) = odd (tl (tl as))
 
-  infixr 5 _++_ _⁺++_ _∷⁺_
+  infixr 5 _++_ _⁺++_
 
   _++_ : List A → Stream A → Stream A
   hd ([] ++ as) = hd as
@@ -82,18 +82,6 @@ module _ {ℓ} {A : Set ℓ} where
   _⁺++_ : List⁺ A → Stream A → Stream A
   hd ((l ∷ ls) ⁺++ as) = l
   tl ((l ∷ ls) ⁺++ as) = ls ++ as
-
-  -- TODO: potentially stupid
-  _∷⁺_  : List A → Stream (List⁺ A) → Stream (List⁺ A)
-  hd ([] ∷⁺ as) = hd as
-  hd ((l ∷ ls) ∷⁺ as) = l ∷ ls
-  tl ([] ∷⁺ as) = as
-  tl ((_ ∷ []) ∷⁺ as) = as
-  tl ((l ∷ l' ∷ ls) ∷⁺ as) = (l' ∷ ls) ∷⁺ as
-
-  concat-alt : Stream (List⁺ A) → Stream A
-  hd (concat-alt as) = List⁺.head (hd as)
-  tl (concat-alt as) = concat-alt ((List⁺.tail (hd as)) ∷⁺ tl as)
 
   concat : Stream (List⁺ A) → Stream A
   hd (concat as) = List⁺.head (hd as)
