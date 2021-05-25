@@ -9,7 +9,6 @@ open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; con
 open import Function.Base
 open import Unsized.Codata.Stream
 
-
 record _≈_ {ℓ} {A : Set ℓ} (xs : Stream A) (ys : Stream A) : Set ℓ where
   coinductive
   field
