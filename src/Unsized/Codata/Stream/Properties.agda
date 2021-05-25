@@ -4,7 +4,7 @@ module Unsized.Codata.Stream.Properties where
 
 open import Level using (Level)
 open import Unsized.Codata.Stream
-open import Unsized.Codata.Stream.Bisimularity
+open import Unsized.Codata.Stream.Relation.Binary.Bisimularity
 open import Data.Nat.Base
 open import Data.Nat.Properties
 open import Data.Nat.GeneralisedArithmetic using (fold; fold-pull)
@@ -149,7 +149,6 @@ open import Data.Bool using (true; false)
 cycle-singleton-repeat : ∀ (a : A) → cycle (a ∷ []) ≈ repeat a
 hd-≈ (cycle-singleton-repeat a) = refl
 tl-≈ (cycle-singleton-repeat a) = cycle-singleton-repeat a
-
 
 []++ : ∀ {as : Stream A} → ([] ++ as) ≈ as
 hd-≈ []++ = refl
