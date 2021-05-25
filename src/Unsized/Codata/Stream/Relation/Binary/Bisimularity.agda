@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe --guardedness #-}
 
-module Unsized.Codata.Stream.Bisimularity where
+module Unsized.Codata.Stream.Relation.Binary.Bisimularity where
 
 open import Data.List.NonEmpty using (List⁺)
 open import Data.List using (List)
